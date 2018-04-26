@@ -2,7 +2,7 @@
 #   File: main.py
 #   Author: Arkadiusz Wadowski
 #   Email: wadowski.arkadiusz@gmail.com
-#   Created: 20.03.2017
+#   Created: 20.03.2018
 # ==========================================================
 
 '''
@@ -44,7 +44,7 @@ def main():
         ip = commands.getstatusoutput('ifconfig wlan0 | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1')[1]
         # just example port number
         port = 1234
-        server = Async_TCP_Server((ip,port))
+        server = Async_TCP_Server((ip, port), '192.168.1.1')
         asyncore.loop()
     except KeyboardInterrupt:
         print ("see you!")

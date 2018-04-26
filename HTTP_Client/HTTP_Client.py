@@ -2,7 +2,7 @@
 #   File: HTTP_Client.py
 #   Author: Arkadiusz Wadowski
 #   Email: wadowski.arkadiusz@gmail.com
-#   Created: 20.03.2017
+#   Created: 20.03.2018
 # ==========================================================
 
 '''
@@ -49,7 +49,7 @@ class HTTP_Client:
     def post(self, resourcePath, data):
         sendAttempts = 5
         # post data to server
-        requests.post(self.serverUrl + resourcePath, data)
+        requests.post('http://'+self.host + resourcePath, data)
 
     def put(self, resourcePath, data):
         # TODO

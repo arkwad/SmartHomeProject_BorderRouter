@@ -2,7 +2,7 @@
 #   File: Async_TCP_Server.py
 #   Author: Arkadiusz Wadowski
 #   Email: wadowski.arkadiusz@gmail.com
-#   Created: 20.03.2017
+#   Created: 20.03.2018
 # ==========================================================
 
 '''
@@ -37,14 +37,16 @@ import asyncore
 import socket
 import logging
 import commands
+from HTTP_Client.HTTP_Client import *
 
 MAX_NUM_OF_CONNECTIONS = 10
 
 class Async_TCP_Server( asyncore.dispatcher ):
     # a list of clients that are connected to our server
     clients = []
+    http_server_ip = ""
     
-    def __init__(self, my_ip_and_port):
+    def __init__(self, my_ip_and_port, http_server_ip):
         #init parrent class
         asyncore.dispatcher.__init__(self)
         # create TCP socket
@@ -54,6 +56,7 @@ class Async_TCP_Server( asyncore.dispatcher ):
         self.bind(my_ip_and_port)
         self.address = self.socket.getsockname()
         self.listen(5)
+        self.http_server_ip = http_server_ip
         # run console logger
         self.logger = logging.getLogger('ServerClass')
         self.logger.debug('Socket is binded to %s', self.address)
@@ -69,16 +72,19 @@ class Async_TCP_Server( asyncore.dispatcher ):
             if len(self.clients) >= MAX_NUM_OF_CONNECTIONS:
                 self.logger.debug('Cant add new client! No space available!')
             else:
-                self.clients.append(Client_Instance(client_socket, client_ip))
+                self.clients.append(Client_Instance(client_socket, client_ip, self.http_server_ip))
 
     def handle_close(self):
         self.logger.debug('server_handle_close() called')
         self.close()
 
 class Client_Instance( asyncore.dispatcher ):
+    http_client = None
     # constructor
-    def __init__(self, sock, address):
+    def __init__(self, sock, address, http_server_ip):
         asyncore.dispatcher.__init__(self, sock)
+        # set up http client
+        self.http_client = HTTP_Client(http_server_ip);
         # run console logger for every client instance
         self.logger = logging.getLogger('ClientInstance: ' + str(address))
         # default output data buffer
@@ -102,9 +108,10 @@ class Client_Instance( asyncore.dispatcher ):
     # method that is called when some data arrived from client
     def handle_read(self):
         data = self.recv(1024)
+        self.http_client.post(':5000/measurements', data)
         self.logger.debug('handle_read() called! Data length: (%d)  Data: "%s"', len(data), data.rstrip())
         # trigger write back action - here data from client will be parsed and post to http server
-        self.data_to_write.insert(0, data)
+        #self.data_to_write.insert(0, data)
 
     # method handles close of object
     def handle_close(self):
@@ -116,7 +123,7 @@ def main():
         logging.basicConfig(level=logging.DEBUG, format='%(name)s:[%(levelname)s]: %(message)s')
         ip = commands.getstatusoutput('ifconfig wlan0 | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1')[1]
         port = 1234
-        server = Async_TCP_Server((ip,port))
+        server = Async_TCP_Server((ip, port), '192.168.1.1')
         asyncore.loop()
     except KeyboardInterrupt:
         print ("see you!")
