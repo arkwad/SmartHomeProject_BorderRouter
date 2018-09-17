@@ -41,7 +41,8 @@ def main():
     try:
         logging.basicConfig(level=logging.DEBUG, format='%(name)s:[%(levelname)s]: %(message)s')
         # here we are forced to use wlan0 interface as it is out internal network interface
-        ip = commands.getstatusoutput('ifconfig wlan0 | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1')[1]
+        #ip = commands.getstatusoutput('ifconfig wlan0 | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1')[1]
+	ip = '127.0.0.1'
         # just example port number
         port = 1234
         server = Async_TCP_Server((ip, port), '192.168.1.1')
