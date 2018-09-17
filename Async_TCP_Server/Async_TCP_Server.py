@@ -128,5 +128,5 @@ def main():
     except KeyboardInterrupt:
         print ("see you!")
 
-if __name__ == '__main__':
-    main()
+#if __name__ == '__main__':
+#    main()
